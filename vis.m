@@ -1,6 +1,6 @@
 function [ ] = vis(map_path,uav_path)
 
-%vis 可视化结果
+%vis
 [mapsize,~,~,obs_info] = load_map_info(map_path);
 MM=mapsize(1);
 time=100;
@@ -9,7 +9,6 @@ Px=zeros(size(uav_path,2),1);
 Py=zeros(size(uav_path,2),1);
 
 for t=1:time
-    %更新路径
     if t>1 && t<=1+size(uav_path,2)
         poid=uav_path(t-1);
         ix=(mod(poid,MM)-0.5); 
@@ -20,7 +19,7 @@ for t=1:time
         Px(t-1)=ix;
         Py(t-1)=iy;
     end
-    G=zeros(mapsize.');
+    G=zeros('mapsize.');
     for obs=1:size(obs_info,1)
         obx = obs_info(obs,1) + floor(obs_info(obs,3)*(t-1));
         oby = obs_info(obs,2) + floor(obs_info(obs,4)*(t-1));
@@ -43,4 +42,3 @@ end
 movie(M);
 
 end
-
