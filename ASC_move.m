@@ -2,7 +2,7 @@
 path='map.txt';
 [mapsize,start_pos,goal_pos,obs_info] = load_map_info(path);
 
-G=zeros(mapsize.');
+G=zeros('mapsize.');
 for obs=1:size(obs_info,1)
     obx = obs_info(obs,1) + floor(obs_info(obs,3)*1);
     oby = obs_info(obs,2) + floor(obs_info(obs,4)*1);
@@ -10,31 +10,31 @@ for obs=1:size(obs_info,1)
         G(obx,oby)=1;
     end
 end
-D=G2D(G); %距离表
-K=200;                       	   %迭代次数（指蚂蚁出动  多少波）
-M=50;                        	   %蚂蚁个数
-MM=size(G,1);                 	   % G 地形图为01矩阵，如果为1表示障碍物 
-Tau=ones(MM*MM,MM*MM);        % Tau 初始信息素矩阵
-S=1 ;                         	   %最短路径的起始点
+D=G2D(G); %
+K=200;                       	   
+M=50;                        	   
+MM=size(G,1);                 	
+Tau=ones(MM*MM,MM*MM);        
+S=1 ;                         	  
 Tau=8.*Tau; 
-E=MM*MM;                        %最短路径的目的点
-Alpha=1;                      	   % Alpha 表征信息素重要程度的参数
-Beta=8;                       	   % Beta 表征启发式因子重要程度的参数
-Rho=0.3;                      	   % Rho 信息素蒸发系数
-Q=3;                               % Q 信息素增加强度系数 
+E=MM*MM;                       
+Alpha=1;                      	   
+Beta=8;                       	   
+Rho=0.3;                      	   
+Q=3;                               
 minkl=inf; 
 mink=0; 
 minl=0; 
 
-N=size(D,1);               %N表示问题的规模（象素个数）
-a=1;                     %小方格象素的边长
-Ex=(mod(E,MM)-0.5);    %终止点横坐标
+N=size(D,1);               
+a=1;                    
+Ex=(mod(E,MM)-0.5);    
 if Ex==-0.5 
     Ex=MM-0.5; 
 end 
-Ey=floor((E-1)/MM)+0.5; %终止点纵坐标
-Eta=zeros(N);             %启发式信息，取为至目标点的直线距离的倒数
-%以下启发式信息矩阵
+Ey=floor((E-1)/MM)+0.5; 
+Eta=zeros(N);             
+
 for i=1:N 
     ix=(mod(i,MM)-0.5); 
     if ix==-0.5 
@@ -47,21 +47,19 @@ for i=1:N
     Eta(i)=100; 
     end 
 end
-ROUTES=cell(K,M);     %用细胞结构存储每一代的每一只蚂蚁的爬行路线
-PL=zeros(K,M);         %用矩阵存储每一代的每一只蚂蚁的爬行路线长度
-                      %启动K轮蚂蚁觅食活动，每轮派出M只蚂蚁
+ROUTES=cell(K,M);     
+PL=zeros(K,M);         
+                    
 for k=1:K
     k
     for m=1:M 
         
-        %状态初始化
-        W=S;                  %当前节点初始化为起始点
-        Path=S;                %爬行路线初始化
-        PLkm=0;               %爬行路线长度初始化
-        TABUkm=ones(N);       %禁忌表初始化
-        TABUkm(S)=0;          %已经在初始点了，因此要排除
-        DD=D;                 %邻接矩阵初始化
-        %下一步可以前往的节点
+        W=S;                  
+        Path=S;                
+        PLkm=0;              
+        TABUkm=ones(N);       
+        TABUkm(S)=0;          
+        DD=D;                
         DW=DD(W,:); 
         DW1=find(DW); 
         for j=1:length(DW1) 
@@ -70,11 +68,9 @@ for k=1:K
           end 
         end 
         LJD=find(DW); 
-        Len_LJD=length(LJD);%可选节点的个数
-        %蚂蚁未遇到食物或者陷入死胡同或者觅食停止
-        t=1;%时间
+        Len_LJD=length(LJD);
+        t=1;
         while W~=E&&Len_LJD>=1 
-            %转轮赌法选择下一步怎么走
             PP=zeros(Len_LJD,1); 
             for i=1:Len_LJD
                 Tau(W,LJD(i));
@@ -82,7 +78,7 @@ for k=1:K
             end 
             PP;
             sumpp=sum(PP); 
-            PP=PP/sumpp;%建立概率分布
+            PP=PP/sumpp;
             Pcum(1)=PP(1); 
             Len_LJD;
             for i=2:Len_LJD 
@@ -91,20 +87,18 @@ for k=1:K
             Pcum;
             Select=find(Pcum>=rand);
             to_visit=LJD(Select(1)); 
-            %状态更新和记录
-            Path=[Path,to_visit];       		 %路径增加
-            PLkm=PLkm+DD(W,to_visit);    %路径长度增加
-            W=to_visit;                   %蚂蚁移到下一个节点
+            Path=[Path,to_visit];       	
+            PLkm=PLkm+DD(W,to_visit);    
+            W=to_visit;                  
             for kk=1:N 
                 if TABUkm(kk)==0 
                     DD(W,kk)=0; 
                     DD(kk,W)=0; 
                 end 
             end 
-            TABUkm(W)=0;				%已访问过的节点从禁忌表中删除
+            TABUkm(W)=0;			
             t = t+1;
-            %更新地图
-            G=zeros(mapsize.');
+            G=zeros('mapsize.');
             for obs=1:size(obs_info,1)
                 obx = obs_info(obs,1) + floor(obs_info(obs,3)*t);
                 oby = obs_info(obs,2) + floor(obs_info(obs,4)*t);
@@ -112,7 +106,7 @@ for k=1:K
                     G(obx,oby)=1;
                 end
             end
-            DD=G2D(G); %距离表
+            DD=G2D(G); 
             DW=DD(W,:); 
             DW1=find(DW); 
             for j=1:length(DW1) 
@@ -121,10 +115,9 @@ for k=1:K
                 end 
             end 
             LJD=find(DW); 
-            Len_LJD=length(LJD);%可选节点的个数
+            Len_LJD=length(LJD);
 
         end
-        %记下每一代每一只蚂蚁的觅食路线和路线长度
         ROUTES{k,m}=Path; 
         if Path(end)==E 
             PL(k,m)=PLkm; 
@@ -136,12 +129,12 @@ for k=1:K
             PL(k,m)=0; 
         end
     end
-    %更新信息素
-    Delta_Tau=zeros(N,N);%更新量初始化
+
+    Delta_Tau=zeros(N,N);
     for m=1:M 
         if PL(k,m)  
             ROUT=ROUTES{k,m}; 
-            TS=length(ROUT)-1;%跳数
+            TS=length(ROUT)-1;
             PL_km=PL(k,m); 
             for s=1:TS 
                 x=ROUT(s); 
@@ -151,11 +144,11 @@ for k=1:K
             end 
         end 
     end 
-    Tau=(1-Rho).*Tau+Delta_Tau;%信息素挥发一部分，新增加一部分
+    Tau=(1-Rho).*Tau+Delta_Tau;
     %disp("1")
-    Tau=tau_trans(mapsize,goal_pos,obs_info,Tau);%人工势场法转移信息素
+    Tau=tau_trans(mapsize,goal_pos,obs_info,Tau);
 end
-%绘图
+
 figure();
 minPL=zeros(K,1); 
 for i=1:K 
@@ -171,6 +164,4 @@ grid on
 title('Trend of convergence curve'); 
 xlabel('The number of iteration/Time'); 
 ylabel('Minimum path length/Km');
-%vis(path,shortest_path)%动态可视化
-
-
+%vis(path,shortest_path)
