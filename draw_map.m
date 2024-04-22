@@ -1,7 +1,6 @@
 function [] = draw_map( map )
-%绘制地图
 %figure(); 
-MM=size(map,1);                 	   % G 地形图为01矩阵，如果为1表示障碍物 
+MM=size(map,1);                 	  
 
 for i=1:MM 
     for j=1:MM
